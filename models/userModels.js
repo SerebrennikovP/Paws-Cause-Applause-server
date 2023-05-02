@@ -27,7 +27,18 @@ function addUserModel(newUser) {
     }
 }
 
+function getUserModel(user) {
+    try {
+        if (user.id) {
+            const data = getAllUsersModel()
+            const parsedData = JSON.parse(data)
+            const userObj = parsedData.find(({ id }) => id == user.id)
+            return userObj
+        }
+        return
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-
-
-module.exports = { getAllUsersModel, addUserModel }
+module.exports = { getAllUsersModel, addUserModel, getUserModel }
