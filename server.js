@@ -1,18 +1,15 @@
 const express = require('express')
 const cors = require('cors')
-const app = express()
+const userRouter = require('./routes/user')
+
 const PORT = 8080
+const app = express()
+
 app.use(express.json())
 app.use(cors())
-const { userLogin, userSignUp, userGet, changeUser } = require('./controller/userController')
 
-app.post('/signUp', userSignUp)
+app.use('/user', userRouter)
 
-app.post('/login', userLogin)
-
-app.post('/getUser', userGet)
-
-app.put('/changeUser/:id', changeUser)
 
 // app.get('/posts/:id/comments', async (req, res) => {
 //    try {
