@@ -1,12 +1,12 @@
 const express = require('express')
 const router = express.Router()
-const { userLogin, userSignUp, userGet, changeUser } = require('../controller/userController')
+// const { } = require('../controller/petController')
 
 // router.post('/signUp', userSignUp)
 
 // router.post('/login', userLogin)
 
-router.post('/getPet', userGet)
+router.post('/getPet', petGet)
 
 // router.put('/changeUser/:id', changeUser)
 

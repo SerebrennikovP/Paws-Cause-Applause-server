@@ -1,16 +1,14 @@
 const userModel = require("../models/userModels")
 const { v4: uuidv4 } = require('uuid')
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcrypt');
+const db = require('../knex/db')
+
 
 async function userLogin(req, res) {
     try {
-        const data = await userModel.getAllUsersModel()
-        const parsedData = JSON.parse(data)
-        const userObj = parsedData.find(({ email }) => email === req.body.email)
-        const verifyUser = userObj && await bcrypt.compare(req.body.password, userObj.password)
-        const { password, ...postData } = userObj;
+        const user = await userModel.findUserModel("email", req.body.email)
+        const verifyUser = user && await bcrypt.compare(req.body.password, user.password)
+        const { password, ...postData } = user;
         res.status(verifyUser ? 201 : 401).send(verifyUser ? postData : null)
     } catch (err) {
         console.log(err)
@@ -27,8 +25,12 @@ async function userSignUp(req, res) {
             password,
             id: uuidv4(),
         };
-        const isOK = userModel.addUserModel(newUser)
-        isOK ? res.status(201).send(newUser.id) : res.status(409).send()
+        const isExist = await userModel.findUserModel("email", newUser.email)
+        if (isExist) res.status(409).send()
+        else {
+            await userModel.addUserModel(newUser)
+            res.status(201).send(newUser.id)
+        }
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message)
@@ -37,7 +39,7 @@ async function userSignUp(req, res) {
 
 async function userGet(req, res) {
     try {
-        const userObj = userModel.getUserModel(req.body)
+        const userObj = await userModel.findUserModel("id", req.body.id)
         userObj ? { password, ...postData } = userObj : postData = null;
         res.status(200).send(postData)
     } catch (err) {
@@ -49,32 +51,33 @@ async function userGet(req, res) {
 async function changeUser(req, res) {
     try {
         const { name, lastname, phone, bio, email } = req.body;
-        const data = userModel.getAllUsersModel()
-        const parsedData = JSON.parse(data)
         const saltRounds = 10;
-        const userIndex = parsedData.findIndex(user => user.id == req.params.id);
-        let password
-        req.body.password ? password = await bcrypt.hash(req.body.password, saltRounds) : password = parsedData[userIndex].password
+        const user = await userModel.findUserModel("id", req.body.id)
 
-        if (userIndex !== -1) {
+        if (user) {
+            let password = user.password;
+            if (req.body.password) {
+                password = await bcrypt.hash(req.body.password, saltRounds);
+            }
+
             const updatedUser = {
-                ...parsedData[userIndex],
-                name: name || parsedData[userIndex].name,
-                lastname: lastname || parsedData[userIndex].lastname,
-                phone: phone || parsedData[userIndex].phone,
-                bio: bio || parsedData[userIndex].bio,
+                name: name || user.name,
+                lastname: lastname || user.lastname,
+                phone: phone || user.phone,
+                bio: bio || user.bio,
                 password,
-                email: email || parsedData[userIndex].email,
+                email: email || user.email,
             };
-            parsedData[userIndex] = updatedUser;
 
-            const usersFilePath = path.join(__dirname, '..', 'db', 'users.json');
-            fs.writeFileSync(usersFilePath, JSON.stringify(parsedData));
-            res.status(200).send()
+            await userModel.updateUserModel(updatedUser, req.params.id)
+
+            res.status(200).send();
+        } else {
+            res.status(404).send('User not found');
         }
     } catch (err) {
-        console.log(err)
-        res.status(500).send(err.message)
+        console.log(err);
+        res.status(500).send(err.message);
     }
 }
 

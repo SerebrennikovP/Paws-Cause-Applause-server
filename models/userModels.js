@@ -1,44 +1,29 @@
-const fs = require('fs');
-const path = require('path');
+const db = require('../knex/db')
 
-const pathToUsersObjects = path.resolve(__dirname, '../db/users.json')
 
-function getAllUsersModel() {
+async function findUserModel(x, param) {
     try {
-        const users = fs.readFileSync(pathToUsersObjects, 'utf-8')
-        return users
+        return await db.from('users').where(x, param).first()
     } catch (err) {
         console.log(err)
     }
 }
 
-function addUserModel(newUser) {
+async function updateUserModel(updatedUser, id) {
     try {
-        const data = getAllUsersModel()
-        const parsedData = JSON.parse(data)
-        if (parsedData.find(({ email }) => email == newUser.email)) return false
-        else {
-            parsedData.push(newUser)
-            fs.writeFileSync(pathToUsersObjects, JSON.stringify(parsedData))
-            return true
-        }
+        return await db('users').where('id', id).update(updatedUser);
     } catch (err) {
         console.log(err)
     }
 }
 
-function getUserModel(user) {
+async function addUserModel(newUser) {
     try {
-        if (user.id) {
-            const data = getAllUsersModel()
-            const parsedData = JSON.parse(data)
-            const userObj = parsedData.find(({ id }) => id == user.id)
-            return userObj
-        }
-        return
+        return await db('users').insert(newUser);
     } catch (err) {
         console.log(err)
     }
 }
 
-module.exports = { getAllUsersModel, addUserModel, getUserModel }
+
+module.exports = { findUserModel, updateUserModel,addUserModel }
