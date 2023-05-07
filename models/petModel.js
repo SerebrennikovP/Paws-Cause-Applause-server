@@ -1,4 +1,4 @@
-const db = require('../knex/db')
+const db = require('../db/knex')
 
 
 async function findPetModel(x, param) {

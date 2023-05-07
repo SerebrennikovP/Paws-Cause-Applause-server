@@ -1,9 +1,9 @@
-const db = require('../knex/db')
+const db = require('../db/knex')
 
 
 async function findUserModel(x, param) {
     try {
-        return await db.from('users').where(x, param).first()
+        return await db('users').where(x, param).first()
     } catch (err) {
         console.log(err)
     }

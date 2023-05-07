@@ -1,15 +1,12 @@
-const userModel = require("../models/userModels")
+const userModel = require("../models/userModel")
 const { v4: uuidv4 } = require('uuid')
-const bcrypt = require('bcrypt');
-const db = require('../knex/db')
-
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 async function userLogin(req, res) {
     try {
-        const user = await userModel.findUserModel("email", req.body.email)
-        const verifyUser = user && await bcrypt.compare(req.body.password, user.password)
-        const { password, ...postData } = user;
-        res.status(verifyUser ? 201 : 401).send(verifyUser ? postData : null)
+        const token = jwt.sign({ id: req.body.id }, process.env.jwtSecret, { expiresIn: '1d' })
+        res.status(201).send(token)
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message)
@@ -17,20 +14,14 @@ async function userLogin(req, res) {
 }
 
 async function userSignUp(req, res) {
-    const saltRounds = 10;
     try {
-        const password = await bcrypt.hash(req.body.password, saltRounds)
         const newUser = {
             ...req.body,
-            password,
             id: uuidv4(),
         };
-        const isExist = await userModel.findUserModel("email", newUser.email)
-        if (isExist) res.status(409).send()
-        else {
-            await userModel.addUserModel(newUser)
-            res.status(201).send(newUser.id)
-        }
+        await userModel.addUserModel(newUser)
+        const token = jwt.sign({ id: newUser.id }, process.env.jwtSecret, { expiresIn: '1d' })
+        res.status(201).send(token)
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message)
@@ -39,9 +30,13 @@ async function userSignUp(req, res) {
 
 async function userGet(req, res) {
     try {
-        const userObj = await userModel.findUserModel("id", req.body.id)
-        userObj ? { password, ...postData } = userObj : postData = null;
-        res.status(200).send(postData)
+        if (req.body.token) {
+            const decoded = jwt.verify(req.body.token, process.env.jwtSecret);
+            const userObj = await userModel.findUserModel("id", decoded.id)
+            userObj ? { password, ...postData } = userObj : postData = null;
+            res.status(200).send(postData)
+        } else
+            res.status(200).send()
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message)
@@ -50,33 +45,26 @@ async function userGet(req, res) {
 
 async function changeUser(req, res) {
     try {
-        const { name, lastname, phone, bio, email } = req.body;
-        const saltRounds = 10;
-        const user = await userModel.findUserModel("id", req.body.id)
+        const decoded = jwt.verify(req.params.token, process.env.jwtSecret);
+        const user = await userModel.findUserModel('id', decoded.id)
 
         if (user) {
-            let password = user.password;
-            if (req.body.password) {
-                password = await bcrypt.hash(req.body.password, saltRounds);
-            }
-
             const updatedUser = {
-                name: name || user.name,
-                lastname: lastname || user.lastname,
-                phone: phone || user.phone,
-                bio: bio || user.bio,
-                password,
-                email: email || user.email,
+                name: req.body.name || user.name,
+                lastname: req.body.lastname || user.lastname,
+                phone: req.body.phone || user.phone,
+                bio: req.body.bio || user.bio,
+                password: req.body.password || user.pasword,
+                email: req.body.email || user.email,
             };
 
-            await userModel.updateUserModel(updatedUser, req.params.id)
+            await userModel.updateUserModel(updatedUser, decoded.id)
 
             res.status(200).send();
         } else {
-            res.status(404).send('User not found');
+           return res.status(404).send('User not found');
         }
     } catch (err) {
-        console.log(err);
         res.status(500).send(err.message);
     }
 }

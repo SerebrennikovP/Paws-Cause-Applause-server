@@ -2,13 +2,16 @@ const express = require('express')
 const router = express.Router()
 const { userLogin, userSignUp, userGet, changeUser } = require('../controller/userController')
 
-// router.post('/signUp', userSignUp)
+const { isNewUser, encryptPwd, doesUserAndPwdExist,auth } = require('../middleware/userMiddleware')
 
-// router.post('/login', userLogin)
 
-router.post('/getPet', userGet)
+router.post('/signup', isNewUser, encryptPwd, userSignUp)
 
-// router.put('/changeUser/:id', changeUser)
+router.post('/login', doesUserAndPwdExist, userLogin)
+
+router.post('/getUser', userGet)
+
+router.put('/changeUser/:token',auth, encryptPwd, changeUser)
 
 
 module.exports = router
