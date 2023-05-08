@@ -2,7 +2,43 @@ const bcrypt = require('bcrypt')
 const { findUserModel } = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const Joi = require('joi');
 
+function checkSchema(req, res, next) {
+    const schema = Joi.object().keys({
+        email: Joi.string().email().required(),
+        password: Joi.string().min(8).required(),
+        name: Joi.string().required(),
+        lastname: Joi.string().required(),
+        phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/).required(),
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json({ message: error.details[0].message });
+    } else {
+        next();
+    }
+}
+
+function checkSchemaForPut(req, res, next) {
+    const schema = Joi.object().keys({
+        email: Joi.string().email(),
+        password: Joi.string().min(8),
+        name: Joi.string(),
+        lastname: Joi.string(),
+        phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/),
+        id: Joi.string(),
+        bio: Joi.string()
+    });
+
+    const { error } = schema.validate(req.body);
+    if (error) {
+        res.status(400).json({ message: error.details[0].message });
+    } else {
+        next();
+    }
+}
 
 async function isNewUser(req, res, next) {
     const user = await findUserModel('email', req.body.email)
@@ -61,4 +97,4 @@ function auth(req, res, next) {
 
 
 
-module.exports = {auth, isNewUser, encryptPwd, doesUserAndPwdExist }
+module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist }

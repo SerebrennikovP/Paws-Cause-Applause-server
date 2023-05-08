@@ -9,6 +9,7 @@ exports.up = function(knex) {
       table.string('color', 19).notNullable();
       table.string('bio', 30).nullable();
       table.boolean('hypoallergenic').notNullable();
+      table.json('dietary_restrictions').nullable();
       table.string('breed', 40).notNullable();
       table.string('pet_id', 50).primary();
       table.string('user_id', 50).nullable().index();

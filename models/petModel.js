@@ -9,21 +9,47 @@ async function findPetModel(x, param) {
     }
 }
 
-// async function updatePetModel(updatedPet, id) {
-//     try {
-//         return await db('pets').where('id', id).update(updatedPet);
-//     } catch (err) {
-//         console.log(err)
-//     }
-// }
+async function searchPetModel(searchObj) {
+    try {
+        const { type, name, height, weight, breed, status } = searchObj;
+        const query = db('pets')
+            .where('type', type)
+            .where('name', 'like', `%${name}%`)
+            .whereBetween('height', height)
+            .whereBetween('weight', weight);
 
-// async function addUserModel(newUser) {
-//     try {
-//         return await db('users').insert(newUser);
-//     } catch (err) {
-//         console.log(err)
-//     }
-// }
+        if (breed) {
+            query.whereIn('breed', breed);
+        }
+
+        if (status != "All") {
+            query.where('adoption_status', status);
+        }
+
+        return await query;
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function breedsGetModel(type) {
+    try {
+        return await db('pets')
+            .distinct('breed')
+            .where('type', type)
+            .pluck('breed');
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+async function randomPetsModel() {
+    try {
+        return db.select('*').from('pets').orderByRaw('RAND()').limit(10)
+    } catch (err) {
+        console.log(err)
+    }
+}
 
 
-module.exports = { findPetModel }
+module.exports = {randomPetsModel, breedsGetModel, findPetModel, searchPetModel }
