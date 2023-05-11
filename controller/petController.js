@@ -40,4 +40,31 @@ async function randomPets(req, res) {
     }
 }
 
-module.exports = { randomPets, searchPet, petGet, breedsGet }
+async function changeStatus(req, res) {
+    try {
+        const petObj = await petModel.findPetModel("pet_id", req.params.pet_id)
+        let adoption_status
+        switch (req.body.handler) {
+            case 'return': adoption_status = "Available"
+                break;
+        }
+
+        if (petObj) {
+            const updatedStatus = {
+                ...petObj,
+                adoption_status,
+                owner_id: req.body.owner_id
+            };
+
+            await petModel.changeStatusModel(updatedStatus, req.params.pet_id)
+
+            res.status(200).send();
+        } else {
+            return res.status(404).send('Pet not found');
+        }
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
+
+module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus }

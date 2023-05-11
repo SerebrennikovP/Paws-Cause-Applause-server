@@ -16,7 +16,8 @@ async function searchPetModel(searchObj) {
             .where('type', type)
             .where('name', 'like', `%${name}%`)
             .whereBetween('height', height)
-            .whereBetween('weight', weight);
+            .whereBetween('weight', weight)
+            .whereNot('adoption_status', 'Adopted')
 
         if (breed) {
             query.whereIn('breed', breed);
@@ -45,11 +46,19 @@ async function breedsGetModel(type) {
 
 async function randomPetsModel() {
     try {
-        return db.select('*').from('pets').orderByRaw('RAND()').limit(10)
+        return db.select('*').from('pets').whereNot('adoption_status', 'Adopted').orderByRaw('RAND()').limit(10)
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+async function changeStatusModel(updatedStatus, id) {
+    try {
+        return await db('pets').where('pet_id', id).update(updatedStatus);
     } catch (err) {
         console.log(err)
     }
 }
 
 
-module.exports = {randomPetsModel, breedsGetModel, findPetModel, searchPetModel }
+module.exports = { randomPetsModel, breedsGetModel, findPetModel, searchPetModel, changeStatusModel }

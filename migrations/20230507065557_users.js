@@ -7,6 +7,7 @@ exports.up = function(knex) {
       table.string('name', 50).notNullable();
       table.string('lastname', 50).notNullable();
       table.string('bio', 255).nullable();
+      table.json('favorite').nullable().index();
     });
   };
   

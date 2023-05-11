@@ -5,7 +5,7 @@ const petRouter = require('./routes/pet')
 const dbConnection = require('./db/knex')
 require('dotenv').config()
 
-const PORT = Number(process.env.PORT) || 8080
+const PORT = process.env.PORT || 8080
 
 const app = express()
 
