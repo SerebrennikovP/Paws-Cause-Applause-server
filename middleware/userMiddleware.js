@@ -29,11 +29,13 @@ function checkSchemaForPut(req, res, next) {
         lastname: Joi.string(),
         phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/),
         id: Joi.string(),
-        bio: Joi.string()
+        bio: Joi.string(),
+        favorite: Joi.string().allow(null)
     });
-
+    console.log(req.body)
     const { error } = schema.validate(req.body);
     if (error) {
+        console.log(error.details[0].message)
         res.status(400).json({ message: error.details[0].message });
     } else {
         next();

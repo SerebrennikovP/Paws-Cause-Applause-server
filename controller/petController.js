@@ -3,6 +3,9 @@ const petModel = require("../models/petModel")
 async function petGet(req, res) {
     try {
         const petObj = await petModel.findPetModel("pet_id", req.params.pet_id)
+        petObj.dietary_restrictions = Object.entries(JSON.parse(petObj.dietary_restrictions))
+            .filter(([key, value]) => !value)
+            .map(([key, value]) => key).join(', ').toUpperCase()
         res.status(200).send(petObj)
     } catch (err) {
         console.log(err)
@@ -47,9 +50,15 @@ async function changeStatus(req, res) {
         switch (req.body.handler) {
             case 'return': adoption_status = "Available"
                 break;
+            case 'foster': adoption_status = "Fostered"
+                break;
+            case 'adopt': adoption_status = "Adopted"
+                break;
+            default:
+                throw new Error(`Error with adoption command: ${req.body.handler}`);
         }
 
-        if (petObj) {
+        if (petObj && adoption_status) {
             const updatedStatus = {
                 ...petObj,
                 adoption_status,

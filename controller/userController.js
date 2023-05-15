@@ -6,7 +6,8 @@ require('dotenv').config()
 async function userLogin(req, res) {
     try {
         const token = jwt.sign({ id: req.body.id }, process.env.jwtSecret, { expiresIn: '1d' })
-        res.status(201).send(token)
+        const expirationDate = Date.now() + 24 * 60 * 60 * 1000 // 1 Day
+        res.status(201).send({ token, expirationDate })
     } catch (err) {
         console.log(err)
         res.status(500).send(err.message)
@@ -24,7 +25,7 @@ async function userSignUp(req, res) {
         res.status(201).send(token)
     } catch (err) {
         console.log(err)
-        res.status(500).send(err.message)
+        res.status(500).send('Invalid token')
     }
 }
 
@@ -62,7 +63,7 @@ async function changeUser(req, res) {
 
             res.status(200).send();
         } else {
-           return res.status(404).send('User not found');
+            return res.status(404).send('User not found');
         }
     } catch (err) {
         res.status(500).send(err.message);
