@@ -22,7 +22,8 @@ async function userSignUp(req, res) {
         };
         await userModel.addUserModel(newUser)
         const token = jwt.sign({ id: newUser.id }, process.env.jwtSecret, { expiresIn: '1d' })
-        res.status(201).send(token)
+        const expirationDate = Date.now() + 24 * 60 * 60 * 1000 // 1 Day
+        res.status(201).send({ token, expirationDate })
     } catch (err) {
         console.log(err)
         res.status(500).send('Invalid token')

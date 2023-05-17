@@ -32,10 +32,8 @@ function checkSchemaForPut(req, res, next) {
         bio: Joi.string(),
         favorite: Joi.string().allow(null)
     });
-    console.log(req.body)
     const { error } = schema.validate(req.body);
     if (error) {
-        console.log(error.details[0].message)
         res.status(400).json({ message: error.details[0].message });
     } else {
         next();
