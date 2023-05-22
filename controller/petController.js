@@ -2,10 +2,7 @@ const petModel = require("../models/petModel")
 
 async function petGet(req, res) {
     try {
-        const petObj = await petModel.findPetModel("pet_id", req.params.pet_id)
-        petObj.dietary_restrictions = Object.entries(JSON.parse(petObj.dietary_restrictions))
-            .filter(([key, value]) => !value)
-            .map(([key, value]) => key).join(', ').toUpperCase()
+        const petObj = await petModel.findPetByIdModel(req.params.pet_id)
         res.status(200).send(petObj)
     } catch (err) {
         console.log(err)
@@ -45,7 +42,7 @@ async function randomPets(req, res) {
 
 async function changeStatus(req, res) {
     try {
-        const petObj = await petModel.findPetModel("pet_id", req.params.pet_id)
+        const petObj = await petModel.findPetByIdModel(req.params.pet_id)
         let adoption_status
         switch (req.body.handler) {
             case 'return': adoption_status = "Available"
@@ -58,9 +55,9 @@ async function changeStatus(req, res) {
                 throw new Error(`Error with adoption command: ${req.body.handler}`);
         }
 
-        if (petObj && adoption_status) {
+        if (petObj._doc && adoption_status) {
             const updatedStatus = {
-                ...petObj,
+                ...petObj._doc,
                 adoption_status,
                 owner_id: req.body.owner_id
             };
@@ -75,5 +72,15 @@ async function changeStatus(req, res) {
         res.status(500).send(err.message);
     }
 }
+async function myPets(req, res) {
+    try {
+        const myPets = await petModel.myPetsModel(req.body.userId)
+        res.status(200).send(myPets)
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err.message)
+    }
+}
 
-module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus }
+
+module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets }

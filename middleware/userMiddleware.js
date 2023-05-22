@@ -1,12 +1,12 @@
 const bcrypt = require('bcrypt')
-const { findUserModel } = require('../models/userModel')
+const { findUserByEmailModel } = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const Joi = require('joi');
 
 function checkSchema(req, res, next) {
     const schema = Joi.object().keys({
-        email: Joi.string().email().required(),
+        email: Joi.string().email({ tlds: { allow: false } }).required(),
         password: Joi.string().min(8).required(),
         name: Joi.string().required(),
         lastname: Joi.string().required(),
@@ -23,15 +23,18 @@ function checkSchema(req, res, next) {
 
 function checkSchemaForPut(req, res, next) {
     const schema = Joi.object().keys({
-        email: Joi.string().email(),
+        email: Joi.string().email({ tlds: { allow: false } }),
         password: Joi.string().min(8),
         name: Joi.string(),
         lastname: Joi.string(),
         phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/),
-        id: Joi.string(),
+        _id: Joi.string(),
         bio: Joi.string(),
-        favorite: Joi.string().allow(null)
+        favorite: Joi.array().allow(null),
+        __v: Joi.number(),
+        date: Joi.date()
     });
+
     const { error } = schema.validate(req.body);
     if (error) {
         res.status(400).json({ message: error.details[0].message });
@@ -40,8 +43,9 @@ function checkSchemaForPut(req, res, next) {
     }
 }
 
+
 async function isNewUser(req, res, next) {
-    const user = await findUserModel('email', req.body.email)
+    const user = await findUserByEmailModel(req.body.email)
     if (user) {
         return res.status(409).send()
     }
@@ -63,7 +67,7 @@ function encryptPwd(req, res, next) {
 
 async function doesUserAndPwdExist(req, res, next) {
     try {
-        const user = await findUserModel('email', req.body.email)
+        const user = await findUserByEmailModel(req.body.email)
         const verifyUser = user && await bcrypt.compare(req.body.password, user.password)
         if (!verifyUser) {
             return res.status(401).send()

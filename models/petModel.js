@@ -1,9 +1,10 @@
-const db = require('../db/knex')
+const Pet = require('./Pet')
 
 
-async function findPetModel(x, param) {
+async function findPetByIdModel(id) {
     try {
-        return await db.from('pets').where(x, param).first()
+        const pet = await Pet.findById(id)
+        return pet
     } catch (err) {
         console.log(err)
     }
@@ -12,22 +13,34 @@ async function findPetModel(x, param) {
 async function searchPetModel(searchObj) {
     try {
         const { type, name, height, weight, breed, status } = searchObj;
-        const query = db('pets')
-            .where('type', type)
-            .where('name', 'like', `%${name}%`)
-            .whereBetween('height', height)
-            .whereBetween('weight', weight)
-            .whereNot('adoption_status', 'Adopted')
+        const query = Pet.find({
+            type,
+            name: { $regex: name, $options: "i" },
+            height: { $gte: height[0], $lte: height[1] },
+            weight: { $gte: weight[0], $lte: weight[1] },
+            adoption_status: { $ne: "Adopted" }
+        });
 
         if (breed) {
-            query.whereIn('breed', breed);
+            query.where("breed").in(breed);
         }
 
-        if (status != "All") {
-            query.where('adoption_status', status);
+        if (status !== "All") {
+            query.where("adoption_status", status);
         }
 
-        return await query;
+        return await query.exec();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
+async function myPetsModel(userId) {
+    try {
+        const query = Pet.find({
+            owner_id: userId
+        });
+        return await query.exec();
     } catch (err) {
         console.log(err);
     }
@@ -35,30 +48,37 @@ async function searchPetModel(searchObj) {
 
 async function breedsGetModel(type) {
     try {
-        return await db('pets')
-            .distinct('breed')
-            .where('type', type)
-            .pluck('breed');
+        const uniqueBreeds = await Pet.distinct("breed").where("type", type).exec();
+        return uniqueBreeds;
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
+
 
 async function randomPetsModel() {
     try {
-        return db.select('*').from('pets').whereNot('adoption_status', 'Adopted').orderByRaw('RAND()').limit(10)
+        const pets = await Pet.aggregate([
+            { $match: { adoption_status: { $ne: "Adopted" } } },
+            { $sample: { size: 10 } }
+        ]).exec();
+        return pets;
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
+
+
 
 async function changeStatusModel(updatedStatus, id) {
     try {
-        return await db('pets').where('pet_id', id).update(updatedStatus);
+        const result = await Pet.updateOne({ _id: id }, updatedStatus);
+        return result;
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
 
 
-module.exports = { randomPetsModel, breedsGetModel, findPetModel, searchPetModel, changeStatusModel }
+
+module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel }

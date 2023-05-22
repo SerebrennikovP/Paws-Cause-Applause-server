@@ -1,5 +1,4 @@
 const userModel = require("../models/userModel")
-const { v4: uuidv4 } = require('uuid')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 
@@ -16,11 +15,8 @@ async function userLogin(req, res) {
 
 async function userSignUp(req, res) {
     try {
-        const newUser = {
-            ...req.body,
-            id: uuidv4(),
-        };
-        await userModel.addUserModel(newUser)
+        const newUser = await userModel.addUserModel(req.body)
+        console.log(newUser.id)
         const token = jwt.sign({ id: newUser.id }, process.env.jwtSecret, { expiresIn: '1d' })
         const expirationDate = Date.now() + 24 * 60 * 60 * 1000 // 1 Day
         res.status(201).send({ token, expirationDate })
@@ -34,9 +30,9 @@ async function userGet(req, res) {
     try {
         if (req.body.token) {
             const decoded = jwt.verify(req.body.token, process.env.jwtSecret);
-            const userObj = await userModel.findUserModel("id", decoded.id)
+            const userObj = await userModel.findUserByIdModel(decoded.id)
             userObj ? { password, ...postData } = userObj : postData = null;
-            res.status(200).send(postData)
+            res.status(200).send(postData._doc)
         } else
             res.status(200).send()
     } catch (err) {
@@ -48,7 +44,7 @@ async function userGet(req, res) {
 async function changeUser(req, res) {
     try {
         const decoded = jwt.verify(req.params.token, process.env.jwtSecret);
-        const user = await userModel.findUserModel('id', decoded.id)
+        const user = await userModel.findUserByIdModel(decoded.id)
 
         if (user) {
             const updatedUser = {
@@ -56,7 +52,7 @@ async function changeUser(req, res) {
                 lastname: req.body.lastname || user.lastname,
                 phone: req.body.phone || user.phone,
                 bio: req.body.bio || user.bio,
-                password: req.body.password || user.pasword,
+                password: req.body.password || user.password,
                 email: req.body.email || user.email,
             };
 
