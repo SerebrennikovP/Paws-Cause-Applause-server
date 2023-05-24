@@ -1,4 +1,5 @@
 const petModel = require("../models/petModel")
+const userModel = require("../models/userModel")
 
 async function petGet(req, res) {
     try {
@@ -72,6 +73,7 @@ async function changeStatus(req, res) {
         res.status(500).send(err.message);
     }
 }
+
 async function myPets(req, res) {
     try {
         const myPets = await petModel.myPetsModel(req.body.userId)
@@ -82,5 +84,24 @@ async function myPets(req, res) {
     }
 }
 
+async function addFavorite(req, res) {
+    try {
+        const resultObj = await petModel.addFavoriteModel(req.body.userId, req.body.pet_id, req.body.isAdd)
 
-module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets }
+        res.status(200).send();
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+}
+
+async function favoritePets(req, res) {
+    try {
+        const favoritePets = await petModel.favoritePetsModel(req.body.favorite)
+        res.status(200).send(favoritePets)
+    } catch (err) {
+        console.log(err)
+        res.status(500).send(err.message)
+    }
+}
+
+module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets, addFavorite,favoritePets }

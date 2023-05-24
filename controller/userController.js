@@ -16,7 +16,6 @@ async function userLogin(req, res) {
 async function userSignUp(req, res) {
     try {
         const newUser = await userModel.addUserModel(req.body)
-        console.log(newUser.id)
         const token = jwt.sign({ id: newUser.id }, process.env.jwtSecret, { expiresIn: '1d' })
         const expirationDate = Date.now() + 24 * 60 * 60 * 1000 // 1 Day
         res.status(201).send({ token, expirationDate })
@@ -31,8 +30,12 @@ async function userGet(req, res) {
         if (req.body.token) {
             const decoded = jwt.verify(req.body.token, process.env.jwtSecret);
             const userObj = await userModel.findUserByIdModel(decoded.id)
-            userObj ? { password, ...postData } = userObj : postData = null;
-            res.status(200).send(postData._doc)
+            if (userObj) {
+                const { password, ...postData } = userObj._doc;
+                res.status(200).send(postData);
+            } else {
+                res.status(200).send(null);
+            }
         } else
             res.status(200).send()
     } catch (err) {

@@ -9,7 +9,7 @@ const userSchema = new Schema({
     bio: { type: String, required: false },
     password: { type: String, required: true },
     date: { type: Date, default: Date.now },
-    isAdmin: Boolean,
+    isAdmin: { type: Boolean, default: false },
     favorite: { type: Array, required: false }
 });
 

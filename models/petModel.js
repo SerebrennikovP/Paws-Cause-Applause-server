@@ -1,4 +1,5 @@
 const Pet = require('./Pet')
+const User = require('./User')
 
 
 async function findPetByIdModel(id) {
@@ -46,6 +47,15 @@ async function myPetsModel(userId) {
     }
 }
 
+async function favoritePetsModel(favorite) {
+    try {
+        const query = Pet.find({ '_id': { $in: favorite }, 'adoption_status': { $ne: "Adopted" } });
+        return await query.exec();
+    } catch (err) {
+        console.log(err);
+    }
+}
+
 async function breedsGetModel(type) {
     try {
         const uniqueBreeds = await Pet.distinct("breed").where("type", type).exec();
@@ -79,6 +89,20 @@ async function changeStatusModel(updatedStatus, id) {
     }
 }
 
+async function addFavoriteModel(user_id, pet_id, isAdd) {
+    try {
+        if (isAdd) {
+            await Pet.updateOne({ _id: pet_id }, { $push: { favorite: user_id } })
+            await User.updateOne({ _id: user_id }, { $push: { favorite: pet_id } })
+        }
+        else {
+            await Pet.updateOne({ _id: pet_id }, { $pull: { favorite: user_id } })
+            await User.updateOne({ _id: user_id }, { $pull: { favorite: pet_id } })
+        }
+        return
+    } catch (err) {
+        console.log(err);
+    }
+}
 
-
-module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel }
+module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel, addFavoriteModel, favoritePetsModel }
