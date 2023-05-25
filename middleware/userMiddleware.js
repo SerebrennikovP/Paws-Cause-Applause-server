@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt')
-const { findUserByEmailModel } = require('../models/userModel')
+const { findUserByEmailModel, findUserByIdModel } = require('../models/userModel')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const Joi = require('joi');
@@ -29,9 +29,9 @@ function checkSchemaForPut(req, res, next) {
         lastname: Joi.string(),
         phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/),
         _id: Joi.string(),
-        bio: Joi.string(),
+        bio: Joi.string().allow(''),
         favorite: Joi.array().allow(null),
-        __v: Joi.number(),
+        isAdmin: Joi.boolean(),
         date: Joi.date()
     });
 
@@ -99,6 +99,13 @@ function auth(req, res, next) {
     });
 }
 
+async function isAdmin(req, res, next) {
+    const user = await findUserByIdModel(req.body.userId)
+    if (!user.isAdmin)
+        return res.status(401).send("It isn't admin")
+    next()
+}
 
 
-module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist }
+
+module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist, isAdmin }

@@ -14,7 +14,8 @@ const petSchema = new Schema({
     dietary_restrictions: { type: Array, required: false },
     breed: { type: String, required: true },
     owner_id: { type: String, required: false },
-    favorite: { type: Array, required: false }
+    favorite: { type: Array, required: false },
+    date: { type: Date, default: Date.now },
 });
 
 const Pet = mongoose.model("Pet", petSchema);

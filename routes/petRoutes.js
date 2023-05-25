@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const { petGet, searchPet, breedsGet, randomPets, changeStatus, myPets, addFavorite, favoritePets } = require('../controller/petController')
-const { auth } = require('../middleware/userMiddleware')
+const { petGet, searchPet, breedsGet, randomPets, changeStatus, myPets, addFavorite, favoritePets, addPet } = require('../controller/petController')
+const { auth, isAdmin } = require('../middleware/userMiddleware')
+const { upload, checkSchemaForPet } = require('../middleware/petMiddleware')
 
 router.get('/petPage/:pet_id', petGet)
 
@@ -18,5 +19,7 @@ router.put('/favorite', auth, addFavorite)
 router.get('/user/:token', auth, myPets)
 
 router.post('/user/favorite/:token', auth, favoritePets)
+
+router.post('/add', auth, isAdmin, upload.single('picture'), checkSchemaForPet, addPet)
 
 module.exports = router

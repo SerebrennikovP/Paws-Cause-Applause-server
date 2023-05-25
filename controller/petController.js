@@ -104,4 +104,21 @@ async function favoritePets(req, res) {
     }
 }
 
-module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets, addFavorite,favoritePets }
+async function addPet(req, res) {
+    try {
+        if (req.body.adoption_status == "Available") req.body.owner_id = ''
+        req.body.dietary_restrictions = req.body.dietary_restrictions?.split(",")
+        const { userId, ...pet } = req.body;
+        const petWithLink = {
+            ...pet,
+            picture: req.file?.path ? req.file.path : 'https://res.cloudinary.com/dajehlqi8/image/upload/v1685047217/logo_ryqpb6.jpg',
+        }
+        const newPet = await petModel.addPetModel(petWithLink)
+        res.status(201).send(true)
+    } catch (err) {
+        res.status(500).send(err)
+    }
+}
+
+
+module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets, addFavorite, favoritePets, addPet }

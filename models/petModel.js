@@ -105,4 +105,14 @@ async function addFavoriteModel(user_id, pet_id, isAdd) {
     }
 }
 
-module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel, addFavoriteModel, favoritePetsModel }
+async function addPetModel(newPet) {
+    try {
+        const pet = await Pet.create(newPet)
+        return pet
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel, addFavoriteModel, favoritePetsModel,addPetModel }
