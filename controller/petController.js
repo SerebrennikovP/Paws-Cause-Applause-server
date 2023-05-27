@@ -120,5 +120,32 @@ async function addPet(req, res) {
     }
 }
 
+async function putPet(req, res) {
+    try {
+        if (req.body.adoption_status == "Available") req.body.owner_id = ''
+        req.body.dietary_restrictions = req.body.dietary_restrictions?.split(",")
+        const { userId, ...pet } = req.body;
+        const petWithLink = {
+            ...pet,
+            picture: req.file?.path ? req.file.path : req.body.picture ? req.body.picture : 'https://res.cloudinary.com/dajehlqi8/image/upload/v1685047217/logo_ryqpb6.jpg',
+        }
+        const { _id, ...updatedPet } = petWithLink;
+        await petModel.putPetModel(_id, updatedPet)
+        res.status(201).send(true)
+    } catch (err) {
+        res.status(500).send(err)
+    }
+}
 
-module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets, addFavorite, favoritePets, addPet }
+async function getAllPets(req, res) {
+    try {
+        const pets = await petModel.getAllPetsModel();
+        res.status(200).send(pets);
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err.message);
+    }
+}
+
+
+module.exports = { randomPets, searchPet, petGet, breedsGet, changeStatus, myPets, addFavorite, favoritePets, addPet, getAllPets, putPet }

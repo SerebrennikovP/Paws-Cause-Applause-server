@@ -3,6 +3,7 @@ const { findUserByEmailModel, findUserByIdModel } = require('../models/userModel
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
 const Joi = require('joi');
+const IDs_creators = ["646e147c7c8a09352a0c6170"]
 
 function checkSchema(req, res, next) {
     const schema = Joi.object().keys({
@@ -29,10 +30,11 @@ function checkSchemaForPut(req, res, next) {
         lastname: Joi.string(),
         phone: Joi.string().regex(/^\+?[1-9]\d{9,19}$/),
         _id: Joi.string(),
-        bio: Joi.string().allow(''),
+        bio: Joi.string().allow(""),
         favorite: Joi.array().allow(null),
         isAdmin: Joi.boolean(),
-        date: Joi.date()
+        date: Joi.date(),
+        __v: Joi.number()
     });
 
     const { error } = schema.validate(req.body);
@@ -106,6 +108,11 @@ async function isAdmin(req, res, next) {
     next()
 }
 
+function isCreator(req, res, next) {
+    if (!IDs_creators.includes(req.body.userId))
+        return res.status(401).send("Only creator can change the list of admins")
+    next()
+}
 
 
-module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist, isAdmin }
+module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist, isAdmin, isCreator }

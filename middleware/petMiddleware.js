@@ -17,10 +17,14 @@ function checkSchemaForPet(req, res, next) {
         weight: Joi.number().required().positive().max(60),
         color: Joi.string().required(),
         breed: Joi.string().required(),
-        bio: Joi.string().allow(''),
+        bio: Joi.string().allow(""),
         hypoallergenic: Joi.boolean().required(),
-        dietary_restrictions: Joi.array().items(Joi.string()).allow(''),
-        picture: Joi.string().allow('')
+        dietary_restrictions: Joi.alternatives().try(
+            Joi.string().allow(''),
+            Joi.array().items(Joi.string().allow(''))
+        ),
+        picture: Joi.string().allow(''),
+        _id: Joi.string().optional()
     });
     const { userId, ...pet } = req.body;
     const { error } = addPetSchema.validate(pet);
@@ -44,4 +48,4 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-module.exports = { upload ,checkSchemaForPet}
+module.exports = { upload, checkSchemaForPet }

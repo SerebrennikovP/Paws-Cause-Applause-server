@@ -114,5 +114,29 @@ async function addPetModel(newPet) {
     }
 }
 
+async function putPetModel(id,updatedPet) {
+    try {
+        const result = await Pet.findOneAndUpdate({ _id: id }, updatedPet);
+        return result;
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel, addFavoriteModel, favoritePetsModel,addPetModel }
+
+const backupData = require('D:/My/ITC/Projects/Pet Adoption/my files/pets.json');
+async function getAllPetsModel() {
+    try {
+        backupData.forEach(async(backupItem) => {
+           await Pet.updateOne({ _id: backupItem._id.$oid }, { $set: { breed: backupItem.breed } });
+        });
+        const pets = await Pet.find({})
+        return pets
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+
+
+module.exports = { randomPetsModel, breedsGetModel, findPetByIdModel, searchPetModel, changeStatusModel, myPetsModel, addFavoriteModel, favoritePetsModel, addPetModel, getAllPetsModel,putPetModel }

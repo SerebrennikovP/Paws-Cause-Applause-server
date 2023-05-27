@@ -37,5 +37,14 @@ async function addUserModel(newUser) {
     }
 }
 
+async function getAllUsersModel() {
+    try {
+        const users = await User.find({})
+        return users
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-module.exports = { findUserByIdModel, findUserByEmailModel, updateUserModel, addUserModel }
+
+module.exports = { findUserByIdModel, findUserByEmailModel, updateUserModel, addUserModel, getAllUsersModel }
