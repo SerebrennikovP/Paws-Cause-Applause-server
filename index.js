@@ -8,6 +8,8 @@ require('dotenv').config()
 const PORT = process.env.PORT || 8080
 
 const app = express()
+app.use(cors({ origin: ['http://localhost:3000','https://paws-cause-applause-serebrennikovp.vercel.app/']}));
+app.use(express.json())
 
 async function main() {
     try {
@@ -24,8 +26,7 @@ async function main() {
     }
 }
 
-app.use(express.json())
-app.use(cors())
+
 
 app.use('/user', userRouter)
 app.use('/pet', petRouter)
