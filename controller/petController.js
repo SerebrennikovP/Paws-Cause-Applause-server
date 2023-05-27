@@ -112,8 +112,8 @@ async function addPet(req, res) {
             ...pet,
             picture: req.file?.path ? req.file.path : 'https://res.cloudinary.com/dajehlqi8/image/upload/v1685047217/logo_ryqpb6.jpg',
         }
-        await petModel.addPetModel(petWithLink)
-        res.status(201).send(true)
+        const newPet = await petModel.addPetModel(petWithLink)
+        res.status(201).send(newPet)
     } catch (err) {
         res.status(500).send(err)
     }

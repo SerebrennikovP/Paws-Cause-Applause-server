@@ -24,7 +24,9 @@ function checkSchemaForPet(req, res, next) {
             Joi.array().items(Joi.string().allow(''))
         ),
         picture: Joi.string().allow(''),
-        _id: Joi.string().optional()
+        _id: Joi.alternatives().try(
+            Joi.string().allow(''),
+            Joi.object().allow('')).optional()
     });
     const { userId, ...pet } = req.body;
     const { error } = addPetSchema.validate(pet);

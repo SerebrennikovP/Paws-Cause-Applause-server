@@ -111,6 +111,7 @@ async function addPetModel(newPet) {
         return pet
     } catch (err) {
         console.log(err)
+        return null
     }
 }
 
