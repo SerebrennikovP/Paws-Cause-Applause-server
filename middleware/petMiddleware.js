@@ -10,7 +10,7 @@ const Joi = require('joi');
 function checkSchemaForPet(req, res, next) {
     const addPetSchema = Joi.object({
         type: Joi.string().valid('Dog', 'Cat').required(),
-        adoption_status: Joi.string().valid('Available', 'Fostered').required(),
+        adoption_status: Joi.string().valid('Available', 'Fostered', 'Adopted').required(),
         name: Joi.string().required(),
         owner_id: Joi.string().allow(''),
         height: Joi.number().required().positive().max(150),
