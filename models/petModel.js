@@ -125,12 +125,9 @@ async function putPetModel(id, updatedPet) {
 }
 
 
-const backupData = require('D:/My/ITC/Projects/Pet Adoption/my files/pets.json');
+
 async function getAllPetsModel() {
     try {
-        backupData.forEach(async (backupItem) => {
-            await Pet.updateOne({ _id: backupItem._id.$oid }, { $set: { breed: backupItem.breed } });
-        });
         const pets = await Pet.find({})
         return pets
     } catch (err) {
