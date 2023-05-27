@@ -1,5 +1,4 @@
 const petModel = require("../models/petModel")
-const userModel = require("../models/userModel")
 
 async function petGet(req, res) {
     try {
@@ -86,7 +85,7 @@ async function myPets(req, res) {
 
 async function addFavorite(req, res) {
     try {
-        const resultObj = await petModel.addFavoriteModel(req.body.userId, req.body.pet_id, req.body.isAdd)
+        await petModel.addFavoriteModel(req.body.userId, req.body.pet_id, req.body.isAdd)
 
         res.status(200).send();
     } catch (err) {
@@ -113,7 +112,7 @@ async function addPet(req, res) {
             ...pet,
             picture: req.file?.path ? req.file.path : 'https://res.cloudinary.com/dajehlqi8/image/upload/v1685047217/logo_ryqpb6.jpg',
         }
-        const newPet = await petModel.addPetModel(petWithLink)
+        await petModel.addPetModel(petWithLink)
         res.status(201).send(true)
     } catch (err) {
         res.status(500).send(err)

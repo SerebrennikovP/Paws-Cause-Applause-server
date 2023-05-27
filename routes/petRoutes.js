@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { petGet, searchPet, breedsGet, randomPets, changeStatus, myPets, addFavorite, favoritePets, addPet, getAllPets,putPet } = require('../controller/petController')
+const { petGet, searchPet, breedsGet, randomPets, changeStatus, myPets, addFavorite, favoritePets, addPet, getAllPets, putPet } = require('../controller/petController')
 const { auth, isAdmin } = require('../middleware/userMiddleware')
 const { upload, checkSchemaForPet } = require('../middleware/petMiddleware')
 
