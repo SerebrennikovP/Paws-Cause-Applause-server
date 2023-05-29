@@ -54,6 +54,14 @@ async function isNewUser(req, res, next) {
     next()
 }
 
+async function isNewEmail(req, res, next) {
+    const user = await findUserByEmailModel(req.body.email)
+    if (user && user._id != req.body.userId) {
+        return res.status(409).send('User with this email exist')
+    }
+    next()
+}
+
 function encryptPwd(req, res, next) {
     if (!req.body.password) return next()
     const saltRounds = 10;
@@ -115,4 +123,4 @@ function isCreator(req, res, next) {
 }
 
 
-module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist, isAdmin, isCreator }
+module.exports = { checkSchemaForPut, checkSchema, auth, isNewUser, encryptPwd, doesUserAndPwdExist, isAdmin, isCreator, isNewEmail }
