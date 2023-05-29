@@ -11,7 +11,7 @@ router.post('/login', doesUserAndPwdExist, userLogin)
 
 router.post('/getUser', userGet)
 
-router.put('/changeUser/:token', checkSchemaForPut, auth, encryptPwd, changeUser)
+router.put('/changeUser/:token', checkSchemaForPut, isNewUser, auth, encryptPwd, changeUser)
 
 router.get('/getAllUsers', auth, isAdmin, getAllUsers)
 

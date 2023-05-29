@@ -49,7 +49,7 @@ function checkSchemaForPut(req, res, next) {
 async function isNewUser(req, res, next) {
     const user = await findUserByEmailModel(req.body.email)
     if (user) {
-        return res.status(409).send()
+        return res.status(409).send('User with this email exist')
     }
     next()
 }
