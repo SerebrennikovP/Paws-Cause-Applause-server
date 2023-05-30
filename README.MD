@@ -14,22 +14,22 @@ A live demo of the application can be accessed at
 
 ## Technologies Used
 
-Node.js
-Express.js
-MongoDB
-Mongoose
-JWT (JSON Web Tokens)
-Bcrypt.js
-Multer
-Cloudinary
-Cors
-Dotenv
-Joi
-Jsonwebtoken
-Multer-storage-cloudinary
-MySQL
-Nodemon
-UUID
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- JWT (JSON Web Tokens)
+- Bcrypt.js
+- Multer
+- Cloudinary
+- Cors
+- Dotenv
+- Joi
+- Jsonwebtoken
+- Multer-storage-cloudinary
+- MySQL
+- Nodemon
+- UUID
 
 ## Getting Started
 
