@@ -30,6 +30,7 @@ A live demo of the application can be accessed at
 - MySQL
 - Nodemon
 - UUID
+- Vercel
 
 ## Getting Started
 
